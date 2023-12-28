@@ -20,12 +20,32 @@ class JobController extends AbstractController
      */
     public function index(JobRepository $jobRepository): Response
     {
-        dump('ok');
         return $this->render('backoffice/job/index.html.twig', [
             'jobs' => $jobRepository->findAll(),
         ]);
     }
-    
+
+    /**
+     * @Route("/new", name="app_backoffice_job_new", methods={"GET", "POST"})
+     */
+    public function new(Request $request, JobRepository $jobRepository): Response
+    {
+        $job = new Job();
+        $form = $this->createForm(JobType::class, $job);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $jobRepository->add($job, true);
+
+            return $this->redirectToRoute('app_backoffice_job_index', [], Response::HTTP_SEE_OTHER);
+        }
+
+        return $this->render('backoffice/job/new.html.twig', [
+            'job' => $job,
+            'form' => $form,
+        ]);
+    }
+
     /**
      * @Route("/{id}", name="app_backoffice_job_show", methods={"GET"})
      */
@@ -37,55 +57,34 @@ class JobController extends AbstractController
     }
 
     /**
-     * @Route("/new", name="app_backoffice_job_new", methods={"GET", "POST"})
-     */
-    // public function new(Request $request, JobRepository $jobRepository): Response
-    // {
-    //     $job = new Job();
-    //     $form = $this->createForm(JobType::class, $job);
-    //     $form->handleRequest($request);
-
-    //     if ($form->isSubmitted() && $form->isValid()) {
-    //         $jobRepository->add($job, true);
-
-    //         return $this->redirectToRoute('app_backoffice_job_index', [], Response::HTTP_SEE_OTHER);
-    //     }
-
-    //     return $this->renderForm('backoffice/job/new.html.twig', [
-    //         'job' => $job,
-    //         'form' => $form,
-    //     ]);
-    // }
-
-    /**
      * @Route("/{id}/edit", name="app_backoffice_job_edit", methods={"GET", "POST"})
      */
-    // public function edit(Request $request, Job $job, JobRepository $jobRepository): Response
-    // {
-    //     $form = $this->createForm(JobType::class, $job);
-    //     $form->handleRequest($request);
+    public function edit(Request $request, Job $job, JobRepository $jobRepository): Response
+    {
+        $form = $this->createForm(JobType::class, $job);
+        $form->handleRequest($request);
 
-    //     if ($form->isSubmitted() && $form->isValid()) {
-    //         $jobRepository->add($job, true);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $jobRepository->add($job, true);
 
-    //         return $this->redirectToRoute('app_backoffice_job_index', [], Response::HTTP_SEE_OTHER);
-    //     }
+            return $this->redirectToRoute('app_backoffice_job_index', [], Response::HTTP_SEE_OTHER);
+        }
 
-    //     return $this->renderForm('backoffice/job/edit.html.twig', [
-    //         'job' => $job,
-    //         'form' => $form,
-    //     ]);
-    // }
+        return $this->render('backoffice/job/edit.html.twig', [
+            'job' => $job,
+            'form' => $form,
+        ]);
+    }
 
     /**
      * @Route("/{id}", name="app_backoffice_job_delete", methods={"POST"})
      */
-    // public function delete(Request $request, Job $job, JobRepository $jobRepository): Response
-    // {
-    //     if ($this->isCsrfTokenValid('delete'.$job->getId(), $request->request->get('_token'))) {
-    //         $jobRepository->remove($job, true);
-    //     }
+    public function delete(Request $request, Job $job, JobRepository $jobRepository): Response
+    {
+        if ($this->isCsrfTokenValid('delete'.$job->getId(), $request->request->get('_token'))) {
+            $jobRepository->remove($job, true);
+        }
 
-    //     return $this->redirectToRoute('app_backoffice_job_index', [], Response::HTTP_SEE_OTHER);
-    // }
+        return $this->redirectToRoute('app_backoffice_job_index', [], Response::HTTP_SEE_OTHER);
+    }
 }

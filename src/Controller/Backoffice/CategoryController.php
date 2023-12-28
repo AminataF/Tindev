@@ -20,9 +20,29 @@ class CategoryController extends AbstractController
      */
     public function index(CategoryRepository $categoryRepository): Response
     {
-        dump('test ok');
         return $this->render('backoffice/category/index.html.twig', [
             'categories' => $categoryRepository->findAll(),
+        ]);
+    }
+
+    /**
+     * @Route("/new", name="app_backoffice_category_new", methods={"GET", "POST"})
+     */
+    public function new(Request $request, CategoryRepository $categoryRepository): Response
+    {
+        $category = new Category();
+        $form = $this->createForm(CategoryType::class, $category);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $categoryRepository->add($category, true);
+
+            return $this->redirectToRoute('app_backoffice_category_index', [], Response::HTTP_SEE_OTHER);
+        }
+
+        return $this->render('backoffice/category/new.html.twig', [
+            'category' => $category,
+            'form' => $form,
         ]);
     }
 
@@ -37,56 +57,34 @@ class CategoryController extends AbstractController
     }
 
     /**
-     * @Route("/new", name="app_backoffice_category_new", methods={"GET", "POST"})
-     */
-    // public function new(Request $request, CategoryRepository $categoryRepository): Response
-    // {
-    //     $category = new Category();
-    //     $form = $this->createForm(CategoryType::class, $category);
-    //     $form->handleRequest($request);
-
-    //     if ($form->isSubmitted() && $form->isValid()) {
-    //         $categoryRepository->add($category, true);
-
-    //         return $this->redirectToRoute('app_backoffice_category_index', [], Response::HTTP_SEE_OTHER);
-    //     }
-
-    //     return $this->renderForm('backoffice/category/new.html.twig', [
-    //         'category' => $category,
-    //         'form' => $form,
-    //     ]);
-    // }
-
-
-    /**
      * @Route("/{id}/edit", name="app_backoffice_category_edit", methods={"GET", "POST"})
      */
-    // public function edit(Request $request, Category $category, CategoryRepository $categoryRepository): Response
-    // {
-    //     $form = $this->createForm(CategoryType::class, $category);
-    //     $form->handleRequest($request);
+    public function edit(Request $request, Category $category, CategoryRepository $categoryRepository): Response
+    {
+        $form = $this->createForm(CategoryType::class, $category);
+        $form->handleRequest($request);
 
-    //     if ($form->isSubmitted() && $form->isValid()) {
-    //         $categoryRepository->add($category, true);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $categoryRepository->add($category, true);
 
-    //         return $this->redirectToRoute('app_backoffice_category_index', [], Response::HTTP_SEE_OTHER);
-    //     }
+            return $this->redirectToRoute('app_backoffice_category_index', [], Response::HTTP_SEE_OTHER);
+        }
 
-    //     return $this->renderForm('backoffice/category/edit.html.twig', [
-    //         'category' => $category,
-    //         'form' => $form,
-    //     ]);
-    // }
+        return $this->render('backoffice/category/edit.html.twig', [
+            'category' => $category,
+            'form' => $form,
+        ]);
+    }
 
     /**
      * @Route("/{id}", name="app_backoffice_category_delete", methods={"POST"})
      */
-    // public function delete(Request $request, Category $category, CategoryRepository $categoryRepository): Response
-    // {
-    //     if ($this->isCsrfTokenValid('delete'.$category->getId(), $request->request->get('_token'))) {
-    //         $categoryRepository->remove($category, true);
-    //     }
+    public function delete(Request $request, Category $category, CategoryRepository $categoryRepository): Response
+    {
+        if ($this->isCsrfTokenValid('delete'.$category->getId(), $request->request->get('_token'))) {
+            $categoryRepository->remove($category, true);
+        }
 
-    //     return $this->redirectToRoute('app_backoffice_category_index', [], Response::HTTP_SEE_OTHER);
-    // }
+        return $this->redirectToRoute('app_backoffice_category_index', [], Response::HTTP_SEE_OTHER);
+    }
 }

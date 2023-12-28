@@ -20,7 +20,7 @@
                 <td>{{ availability.availability }}</td>
                 <td>
                     <a href="{{ path('app_backoffice_availability_show', {'id': availability.id}) }}">show</a>
-                    {# <a href="{{ path('app_backoffice_availability_edit', {'id': availability.id}) }}">edit</a> #}
+                    <a href="{{ path('app_backoffice_availability_edit', {'id': availability.id}) }}">edit</a>
                 </td>
             </tr>
         {% else %}
@@ -31,5 +31,5 @@
         </tbody>
     </table>
 
-    {# <a href="{{ path('app_backoffice_availability_new') }}">Create new</a> #}
+    <a href="{{ path('app_backoffice_availability_new') }}">Create new</a>
 {% endblock %}

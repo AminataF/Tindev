@@ -20,7 +20,7 @@ class CompetenceController extends AbstractController
      */
     public function index(CompetenceRepository $competenceRepository): Response
     {
-        dump('ok');
+        // dump('ok');
 
         return $this->render('backoffice/competence/index.html.twig', [
             'competences' => $competenceRepository->findAll(),

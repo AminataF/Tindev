@@ -20,7 +20,7 @@
                 <td>{{ job.name }}</td>
                 <td>
                     <a href="{{ path('app_backoffice_job_show', {'id': job.id}) }}">show</a>
-                    {# <a href="{{ path('app_backoffice_job_edit', {'id': job.id}) }}">edit</a> #}
+                    <a href="{{ path('app_backoffice_job_edit', {'id': job.id}) }}">edit</a>
                 </td>
             </tr>
         {% else %}
@@ -31,5 +31,5 @@
         </tbody>
     </table>
 
-    {# <a href="{{ path('app_backoffice_job_new') }}">Create new</a> #}
+    <a href="{{ path('app_backoffice_job_new') }}">Create new</a>
 {% endblock %}

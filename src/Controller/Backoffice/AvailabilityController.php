@@ -26,6 +26,27 @@ class AvailabilityController extends AbstractController
     }
 
     /**
+     * @Route("/new", name="app_backoffice_availability_new", methods={"GET", "POST"})
+     */
+    public function new(Request $request, AvailabilityRepository $availabilityRepository): Response
+    {
+        $availability = new Availability();
+        $form = $this->createForm(AvailabilityType::class, $availability);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $availabilityRepository->add($availability, true);
+
+            return $this->redirectToRoute('app_backoffice_availability_index', [], Response::HTTP_SEE_OTHER);
+        }
+
+        return $this->render('backoffice/availability/new.html.twig', [
+            'availability' => $availability,
+            'form' => $form,
+        ]);
+    }
+
+    /**
      * @Route("/{id}", name="app_backoffice_availability_show", methods={"GET"})
      */
     public function show(Availability $availability): Response
@@ -36,55 +57,38 @@ class AvailabilityController extends AbstractController
     }
 
     /**
-     * @Route("/new", name="app_backoffice_availability_new", methods={"GET", "POST"})
-     */
-    // public function new(Request $request, AvailabilityRepository $availabilityRepository): Response
-    // {
-    //     $availability = new Availability();
-    //     $form = $this->createForm(AvailabilityType::class, $availability);
-    //     $form->handleRequest($request);
-
-    //     if ($form->isSubmitted() && $form->isValid()) {
-    //         $availabilityRepository->add($availability, true);
-
-    //         return $this->redirectToRoute('app_backoffice_availability_index', [], Response::HTTP_SEE_OTHER);
-    //     }
-
-    //     return $this->renderForm('backoffice/availability/new.html.twig', [
-    //         'availability' => $availability,
-    //         'form' => $form,
-    //     ]);
-    // }
-
-    /**
+     * J'ajoute le marqueur de nulité sur mon entité en argument : '?' : ?Movie
+     * cela permet au paramConverteur de me fournir la valeur 'null' si il ne trouve pas d'entité
+     * il ne me reste plus cas tester cette valeur 'null' lancer une exception 
+     * 
      * @Route("/{id}/edit", name="app_backoffice_availability_edit", methods={"GET", "POST"})
      */
-    // public function edit(Request $request, Availability $availability, AvailabilityRepository $availabilityRepository): Response
-    // {
-    //     $form = $this->createForm(AvailabilityType::class, $availability);
-    //     $form->handleRequest($request);
+    public function edit(Request $request, Availability $availability, AvailabilityRepository $availabilityRepository): Response
+    {
+        $form = $this->createForm(AvailabilityType::class, $availability);
+        $form->handleRequest($request);
 
-    //     if ($form->isSubmitted() && $form->isValid()) {
-    //         $availabilityRepository->add($availability, true);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $availabilityRepository->add($availability, true);
 
-    //         return $this->redirectToRoute('app_backoffice_availability_index', [], Response::HTTP_SEE_OTHER);
-    //     }
+            return $this->redirectToRoute('app_backoffice_availability_index', [], Response::HTTP_SEE_OTHER);
+        }
 
-    //     return $this->renderForm('backoffice/availability/edit.html.twig', [
-    //         'availability' => $availability,
-    //         'form' => $form,
-    //     ]);
-    // }
+        return $this->render('backoffice/availability/edit.html.twig', [
+            'availability' => $availability,
+            'form' => $form,
+        ]);
+    }
 
     /**
      * @Route("/{id}", name="app_backoffice_availability_delete", methods={"POST"})
      */
-    // public function delete(Request $request, Availability $availability, AvailabilityRepository $availabilityRepository): Response
-    // {
-    //     if ($this->isCsrfTokenValid('delete'.$availability->getId(), $request->request->get('_token'))) {
-    //         $availabilityRepository->remove($availability, true);
-    //     }
+    public function delete(Request $request, Availability $availability, AvailabilityRepository $availabilityRepository): Response
+    {
+        if ($this->isCsrfTokenValid('delete'.$availability->getId(), $request->request->get('_token'))) {
+            $availabilityRepository->remove($availability, true);
+        }
 
-    //     return $this->redirectToRoute('app_backoffice_availability_index', [], Response::HTTP_SEE_OTHER);
-    // }
+        return $this->redirectToRoute('app_backoffice_availability_index', [], Response::HTTP_SEE_OTHER);
+    }
 }

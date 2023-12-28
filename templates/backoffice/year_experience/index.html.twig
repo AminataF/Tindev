@@ -20,7 +20,7 @@
                 <td>{{ year_experience.yearExp }}</td>
                 <td>
                     <a href="{{ path('app_backoffice_year_experience_show', {'id': year_experience.id}) }}">show</a>
-                    {# <a href="{{ path('year_experience_edit', {'id': year_experience.id}) }}">edit</a> #}
+                    <a href="{{ path('app_backoffice_year_experience_edit', {'id': year_experience.id}) }}">edit</a>
                 </td>
             </tr>
         {% else %}
@@ -29,7 +29,8 @@
             </tr>
         {% endfor %}
         </tbody>
+    <a href="{{ path('app_backoffice_year_experience_new')}}">Create new</a>
+
     </table>
 
-    {# <a href="{{ path('year_experience_new') }}">Create new</a> #}
 {% endblock %}
