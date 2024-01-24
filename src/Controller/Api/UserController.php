@@ -23,7 +23,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
-use App\Security\Voter\UserProfileAccessVoter;
+
 
 class UserController extends AbstractController
 {
@@ -32,10 +32,8 @@ class UserController extends AbstractController
      */
     public function browse(UserRepository $userRepository): JsonResponse
     {
-
         // BDD, injection repository, browse all users
         $allUser = $userRepository->findAll();
-
 
         return $this->json(
             $allUser,
@@ -53,8 +51,9 @@ class UserController extends AbstractController
     /**
      * @Route("/api/users/{id}", name="app_api_user_read", methods={"GET"}, requirements={"id"="\d+"})
      */
-    public function read(UserRepository $userRepository, int $id, UserProfileAccessVoter $voter, ProfileCompletionCalculator $profileCompletionCalculator): JsonResponse
+    public function read(UserRepository $userRepository, int $id): JsonResponse
     {
+        
         // Retrieve the user's information from the database
         $user = $userRepository->find($id);
 
@@ -68,16 +67,10 @@ class UserController extends AbstractController
             );
         }
 
-        // Check if the current user has access to the requested user's profile
-        $this->denyAccessUnlessGranted(UserProfileAccessVoter::VIEW, $user);
-
-        // Calculate the user's profile completion percentage
-        $profileCompletion = $profileCompletionCalculator->calculateProfileCompletion($user);
-
         return $this->json(
             [
                 $user,
-                $profileCompletion,
+                // $profileCompletion,
             ],
             Response::HTTP_OK,
             [],
@@ -96,8 +89,8 @@ class UserController extends AbstractController
         Request $request,
         SerializerInterface $serializer,
         EntityManagerInterface $entityManager,
-        ValidatorInterface $validator,
-        UserProfileAccessVoter $voter
+        ValidatorInterface $validator
+        // UserProfileAccessVoter $voter
     ): JsonResponse {
         // Retrieve the user's information from the database
         $user = $userRepository->find($id);
@@ -111,9 +104,6 @@ class UserController extends AbstractController
                 Response::HTTP_NOT_FOUND
             );
         }
-
-        // Check if the current user has access to the requested user's profile
-        $this->denyAccessUnlessGranted(UserProfileAccessVoter::VIEW, $user);
 
         // Get the request content
         $jsonContent = $request->getContent();
@@ -216,24 +206,29 @@ class UserController extends AbstractController
          $entityManager->flush();
 
          // Return the newly created User object to the client
-         return $this->json($user, Response::HTTP_CREATED, [], [
+         return $this->json(
+            $user,
+            Response::HTTP_CREATED,
+            [],
+            [
              'groups' => ['user_read']
-         ]);
+            ]
+        );
      }
 
     /**
      * @Route("/api/users/{id}", name="app_api_user_delete", requirements={"id"="\d+"}, methods={"DELETE"}, requirements={"id"="\d+"})
       */
-    public function delete(User $user = null, EntityManagerInterface $entityManager, UserProfileAccessVoter $voter)
+    public function delete(User $user = null, EntityManagerInterface $entityManager)
     {
-
+        // delete(User $user = null, EntityManagerInterface $entityManager, UserProfileAccessVoter $voter)
         if ($user === null) {
             // paramConverter didn't find the user entity : 404
             return $this->json("Utilisateur non trouvé", Response::HTTP_NOT_FOUND);
         }
 
         // Check if the current user has access to the requested user's profile
-        $this->denyAccessUnlessGranted(UserProfileAccessVoter::VIEW, $user);
+        // $this->denyAccessUnlessGranted(UserProfileAccessVoter::VIEW, $user);
 
 
         $entityManager->remove($user);
@@ -312,17 +307,19 @@ class UserController extends AbstractController
             Request $request,
             User $user,
             UserPasswordHasherInterface $userPasswordHasherInterface,
-            EntityManagerInterface $entityManager,
-            UserProfileAccessVoter $voter
+            EntityManagerInterface $entityManager
+            // UserProfileAccessVoter $voter
         ) {
 
             // Check if the current user has access to the requested user's profile
-            $this->denyAccessUnlessGranted(UserProfileAccessVoter::VIEW, $user);
+            // $this->denyAccessUnlessGranted(UserProfileAccessVoter::VIEW, $user);
 
             $data = json_decode($request->getContent(), true);
             $oldPassword = $data['old_password'];
             $newPassword = $data['new_password'];
 
+                dd($oldPassword);
+                dd($newPassword);
 
             // Verify that the provided old password matches the user's current password
             if (!$userPasswordHasherInterface->isPasswordValid($user, $oldPassword)) {

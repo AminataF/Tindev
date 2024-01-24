@@ -7,32 +7,32 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
+#[ORM\Table(name: "userMatch")]
 #[ORM\Entity(repositoryClass: UserMatchRepository::class)]
 class UserMatch
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    // #[Groups(['user_match_read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 15, nullable: true)]
+    // #[Groups(['user_match_read'])]
     private ?string $status = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $date = null;
 
-    #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'matchesGiven')]
-    private Collection $userMatcher;
+    #[ORM\ManyToOne(inversedBy: 'matchesGiven')]
+    // #[Groups(['user_match_read'])]
+    private ?User $userMatcher = null;
 
-    #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'matchesReceived')]
-    private Collection $userMatched;
-
-    public function __construct()
-    {
-        $this->userMatcher = new ArrayCollection();
-        $this->userMatched = new ArrayCollection();
-    }
+    #[ORM\ManyToOne(inversedBy: 'matchesReceived')]
+    // #[Groups(['user_match_read'])]
+    private ?User $userMatched = null;
 
     public function getId(): ?int
     {
@@ -63,50 +63,26 @@ class UserMatch
         return $this;
     }
 
-    /**
-     * @return Collection<int, User>
-     */
-    public function getUserMatcher(): Collection
+    public function getUserMatcher(): ?User
     {
         return $this->userMatcher;
     }
 
-    public function addUserMatcher(User $userMatcher): static
+    public function setUserMatcher(?User $userMatcher): static
     {
-        if (!$this->userMatcher->contains($userMatcher)) {
-            $this->userMatcher->add($userMatcher);
-        }
+        $this->userMatcher = $userMatcher;
 
         return $this;
     }
 
-    public function removeUserMatcher(User $userMatcher): static
-    {
-        $this->userMatcher->removeElement($userMatcher);
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, User>
-     */
-    public function getUserMatched(): Collection
+    public function getUserMatched(): ?User
     {
         return $this->userMatched;
     }
 
-    public function addUserMatched(User $userMatched): static
+    public function setUserMatched(?User $userMatched): static
     {
-        if (!$this->userMatched->contains($userMatched)) {
-            $this->userMatched->add($userMatched);
-        }
-
-        return $this;
-    }
-
-    public function removeUserMatched(User $userMatched): static
-    {
-        $this->userMatched->removeElement($userMatched);
+        $this->userMatched = $userMatched;
 
         return $this;
     }

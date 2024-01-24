@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\ProjectRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: ProjectRepository::class)]
 class Project
@@ -12,28 +13,36 @@ class Project
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['browse_projects','project_read', 'user_read', 'user_profile'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 50, nullable: true)]
+    #[Groups(['browse_projects','project_read', 'add_project', 'user_read', 'user_profile'])]
     private ?string $name = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Groups(['browse_projects','project_read', 'add_project', 'user_read', 'user_profile'])]
     private ?string $description = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    #[Groups(['browse_projects','project_read', 'add_project', 'user_read', 'user_profile'])]
     private ?\DateTimeInterface $date = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['browse_projects','project_read', 'add_project', 'user_read', 'user_profile'])]
     private ?string $techno = null;
 
     #[ORM\Column(length: 100, nullable: true)]
+    #[Groups(['browse_projects','project_read', 'add_project', 'user_read', 'user_profile'])]
     private ?string $github = null;
 
     #[ORM\Column(length: 100, nullable: true)]
+    #[Groups(['browse_projects','project_read', 'add_project', 'user_read', 'user_profile'])]
     private ?string $urlProject = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    private ?string $upolad = null;
+    #[Groups(['browse_projects','project_read', 'add_project', 'user_read', 'user_profile'])]
+    private ?string $upload = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $createdAt = null;
@@ -121,14 +130,14 @@ class Project
         return $this;
     }
 
-    public function getUpolad(): ?string
+    public function getUpload(): ?string
     {
-        return $this->upolad;
+        return $this->upload;
     }
 
-    public function setUpolad(?string $upolad): static
+    public function setUplad(?string $upload): static
     {
-        $this->upolad = $upolad;
+        $this->upload = $upload;
 
         return $this;
     }

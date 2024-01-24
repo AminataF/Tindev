@@ -9,16 +9,20 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Serializer\Annotation\Groups;
 
+#[ORM\Table(name: 'user')]
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['user_read', 'user_profile', 'user_match_read', 'browse_projects', 'project_read', 'browse_competence', 'competence_read','user_browse', 'latest_users', 'add_project'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 180, unique: true)]
+    #[Groups(['user_browse', 'user_read', 'user_profile', 'user_match_read'])]
     private ?string $email = null;
 
     #[ORM\Column]
@@ -27,64 +31,81 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @var string The hashed password
      */
-    #[ORM\Column]
+    #[ORM\Column(nullable: true)]
     private ?string $password = null;
 
     #[ORM\Column(length: 35, nullable: true)]
+    #[Groups(['user_browse', 'user_read', 'latest_users', 'user_match_read', 'browse_projects', 'project_read', 'add_project', 'user_profile'])]
     private ?string $firstname = null;
 
     #[ORM\Column(length: 35, nullable: true)]
+    #[Groups(['user_browse', 'user_read', 'latest_users', 'user_match_read', 'user_profile'])]
     private ?string $lastname = null;
 
     #[ORM\Column(length: 120, nullable: true)]
+    #[Groups(['user_browse', 'user_read', 'user_match_read', 'user_profile'])]
     private ?string $town = null;
 
     #[ORM\Column(length: 100, nullable: true)]
+    #[Groups(['user_browse', 'user_read', 'user_profile'])]
     private ?string $cv = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['user_browse', 'user_read', 'user_profile'])]
     private ?string $github = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['user_browse', 'user_read', 'user_profile'])]
     private ?string $linkedin = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['user_browse', 'user_read', 'user_profile'])]
     private ?string $portfolio = null;
 
     #[ORM\Column(length: 35, nullable: true)]
+    #[Groups(['user_browse', 'user_read', 'latest_users', 'user_match_read', 'user_profile'])]
     private ?string $profilePicture = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Groups(['user_browse', 'user_read', 'user_profile'])]
     private ?string $description = null;
 
     #[ORM\Column(nullable: true)]
+    #[Groups(['user_browse', 'user_read', 'user_profile'])]
     private ?int $pricing = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    #[Groups(['user_browse', 'user_read'])]
     private ?\DateTimeInterface $CreatedAt = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    #[Groups(['user_browse'])]
     private ?\DateTimeInterface $updateAt = null;
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Project::class)]
+    #[Groups(['user_browse', 'user_read', 'user_profile'])]
     private Collection $projects;
 
     #[ORM\ManyToMany(targetEntity: Competence::class, inversedBy: 'users')]
+    #[Groups(['user_browse', 'user_read', 'user_match_read', 'latest_users', 'user_profile'])]
     private Collection $competences;
 
     #[ORM\ManyToOne]
+    #[Groups(['user_browse','user_read', 'user_profile', 'latest_users'])]
     private ?Job $job = null;
 
     #[ORM\ManyToOne]
+    #[Groups(['user_browse', 'user_read', 'user_profile'])]
     private ?YearExperience $yearExp = null;
 
     #[ORM\ManyToOne]
+    #[Groups(['user_browse', 'user_read', 'latest_users', 'user_profile'])]
     private ?Availability $availability = null;
 
-    #[ORM\ManyToMany(targetEntity: UserMatch::class, mappedBy: 'userMatcher')]
+    #[ORM\OneToMany(mappedBy: 'userMatcher', targetEntity: UserMatch::class)]
     private Collection $matchesGiven;
 
-    #[ORM\ManyToMany(targetEntity: UserMatch::class, mappedBy: 'userMatched')]
+    #[ORM\OneToMany(mappedBy: 'userMatched', targetEntity: UserMatch::class)]
     private Collection $matchesReceived;
 
     public function __construct()
@@ -411,7 +432,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         if (!$this->matchesGiven->contains($matchesGiven)) {
             $this->matchesGiven->add($matchesGiven);
-            $matchesGiven->addUserMatcher($this);
+            $matchesGiven->setUserMatcher($this);
         }
 
         return $this;
@@ -420,7 +441,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function removeMatchesGiven(UserMatch $matchesGiven): static
     {
         if ($this->matchesGiven->removeElement($matchesGiven)) {
-            $matchesGiven->removeUserMatcher($this);
+            // set the owning side to null (unless already changed)
+            if ($matchesGiven->getUserMatcher() === $this) {
+                $matchesGiven->setUserMatcher(null);
+            }
         }
 
         return $this;
@@ -438,7 +462,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         if (!$this->matchesReceived->contains($matchesReceived)) {
             $this->matchesReceived->add($matchesReceived);
-            $matchesReceived->addUserMatched($this);
+            $matchesReceived->setUserMatched($this);
         }
 
         return $this;
@@ -447,7 +471,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function removeMatchesReceived(UserMatch $matchesReceived): static
     {
         if ($this->matchesReceived->removeElement($matchesReceived)) {
-            $matchesReceived->removeUserMatched($this);
+            // set the owning side to null (unless already changed)
+            if ($matchesReceived->getUserMatched() === $this) {
+                $matchesReceived->setUserMatched(null);
+            }
         }
 
         return $this;

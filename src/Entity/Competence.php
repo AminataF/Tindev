@@ -6,6 +6,7 @@ use App\Repository\CompetenceRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: CompetenceRepository::class)]
 class Competence
@@ -13,15 +14,19 @@ class Competence
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['user_browse', 'user_read', 'latest_users', 'browse_competence', 'competence_read', 'add_competence', 'user_profile'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 20, nullable: true)]
+    #[Groups(['user_browse', 'user_read', 'latest_users', 'browse_competence', 'competence_read', 'add_competence', 'user_profile'])]
     private ?string $techno = null;
 
     #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'competences')]
+    #[Groups(['browse_competence', 'competence_read', 'add_competence'])]
     private Collection $users;
 
     #[ORM\ManyToOne(inversedBy: 'category')]
+    #[Groups(['user_browse', 'user_read', 'latest_users', 'browse_competence', 'competence_read', 'add_competence', 'user_profile'])]
     private ?Category $category = null;
 
     public function __construct()

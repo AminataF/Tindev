@@ -72,7 +72,7 @@ class ProjectController extends AbstractController
 
 
     /**
-      @Route("/api/projects", name="app_api_project_add", methods={"POST"})
+    * @Route("/api/projects", name="app_api_project_add", methods={"POST"})
     */
         public function add(
             Request $request,

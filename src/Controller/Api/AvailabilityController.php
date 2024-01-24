@@ -34,6 +34,8 @@ class AvailabilityController extends AbstractController
         );
     }
 
+    
+
     /**
      * @Route("/api/availability/{id}", name="app_api_availability_add", methods={"PUT", "PATCH"})
      */
